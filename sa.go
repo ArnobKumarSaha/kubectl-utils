@@ -4,22 +4,22 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/cobra"
+	"gomodules.xyz/oneliners"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 	"strings"
 )
 
 var (
-	name, namespace             string
-	typStr                      string
-	oyaml                       bool
-	role, crole                 bool
-	rb, crb                     bool
-	filteredClusterRoleBindings []rbacv1.ClusterRoleBinding
-	filteredClusterRoles        []rbacv1.ClusterRole
-	filteredRoleBindings        []rbacv1.RoleBinding
-	filteredRoles               []rbacv1.Role
+	name, namespace     string
+	typStr              string
+	oyaml               bool
+	role, crole         bool
+	rb, crb             bool
+	clusterRoleBindings []rbacv1.ClusterRoleBinding
+	clusterRoles        []rbacv1.ClusterRole
+	roleBindings        []rbacv1.RoleBinding
+	roles               []rbacv1.Role
 )
 
 func ServiceAccountCMD() *cobra.Command {
@@ -27,9 +27,9 @@ func ServiceAccountCMD() *cobra.Command {
 		Use:   "sa",
 		Short: "list",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("sa called !")
 			parse()
 			_ = calcSA()
+			printSA()
 		},
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
@@ -68,7 +68,7 @@ func parse() {
 			fmt.Errorf("Type %s not matched \n", str)
 		}
 	}
-	klog.Infof("crb=%v rb=%v crole=%v role=%v  \n", crb, rb, crole, role)
+	//fmt.Printf("crb=%v rb=%v crole=%v role=%v  \n", crb, rb, crole, role)
 }
 
 func calcSA() error {
@@ -79,7 +79,7 @@ func calcSA() error {
 	for _, c := range crbs.Items {
 		for _, sub := range c.Subjects {
 			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
-				filteredClusterRoleBindings = append(filteredClusterRoleBindings, c)
+				clusterRoleBindings = append(clusterRoleBindings, c)
 				collect(c.RoleRef, "")
 			}
 		}
@@ -92,14 +92,11 @@ func calcSA() error {
 	for _, c := range rbs.Items {
 		for _, sub := range c.Subjects {
 			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
-				filteredRoleBindings = append(filteredRoleBindings, c)
+				roleBindings = append(roleBindings, c)
 				collect(c.RoleRef, c.Namespace)
 			}
 		}
 	}
-
-	klog.Infof("crbs=%+v, crs=%+v, rbs=%+v, roles=%+v \n",
-		filteredClusterRoleBindings, filteredClusterRoles, filteredRoleBindings, filteredRoles)
 	return nil
 }
 
@@ -109,13 +106,41 @@ func collect(ref rbacv1.RoleRef, ns string) error {
 		if err != nil {
 			return err
 		}
-		filteredClusterRoles = append(filteredClusterRoles, *x)
+		clusterRoles = append(clusterRoles, *x)
 	} else if ref.Kind == "Role" {
 		x, err := clientset.RbacV1().Roles(ns).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
-		filteredRoles = append(filteredRoles, *x)
+		roles = append(roles, *x)
 	}
 	return nil
+}
+
+func printSA() {
+	fmt.Printf("::::::::::: Printing the resources connected with %s/%s ServiceAccount ::::::::::: \n", namespace, name)
+	fmt.Printf("ClusterRoleBindings ==> ")
+	for _, c := range clusterRoleBindings {
+		pri(&c, fmt.Sprintf("ClusterRoleBinding %s", c.GetName()))
+	}
+	fmt.Printf("\nClusterRoles ==> ")
+	for _, c := range clusterRoles {
+		pri(&c, fmt.Sprintf("ClusterRole %s", c.GetName()))
+	}
+	fmt.Printf("\nRoleBindings ==> ")
+	for _, c := range roleBindings {
+		pri(&c, fmt.Sprintf("RoleBinding %s/%s", c.GetNamespace(), c.GetName()))
+	}
+	fmt.Printf("\nRoles ==> ")
+	for _, c := range roles {
+		pri(&c, fmt.Sprintf("Role %s/%s", c.GetNamespace(), c.GetName()))
+	}
+}
+
+func pri(c metav1.Object, header string) {
+	if oyaml {
+		oneliners.PrettyJson(c, header)
+	} else {
+		fmt.Printf("%s, ", c.GetName())
+	}
 }

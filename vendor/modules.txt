@@ -117,6 +117,9 @@ golang.org/x/text/unicode/norm
 # golang.org/x/time v0.3.0
 ## explicit
 golang.org/x/time/rate
+# gomodules.xyz/oneliners v0.0.1
+## explicit; go 1.14
+gomodules.xyz/oneliners
 # google.golang.org/appengine v1.6.7
 ## explicit; go 1.11
 google.golang.org/appengine/internal
