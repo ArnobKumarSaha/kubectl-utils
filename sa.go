@@ -12,7 +12,7 @@ import (
 
 var (
 	name, namespace     string
-	typStr              string
+	typStr              = "crb,rb,crole,role"
 	oyaml               bool
 	role, crole         bool
 	rb, crb             bool
@@ -41,7 +41,7 @@ func ServiceAccountCMD() *cobra.Command {
 
 	cmd.Flags().BoolVarP(&oyaml, "oyaml", "y", oyaml, "shows yaml too")
 	cmd.Flags().Lookup("oyaml").NoOptDefVal = "true"
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }
 
@@ -65,35 +65,47 @@ func parse() {
 			crole = true
 			continue
 		default:
-			fmt.Errorf("Type %s not matched \n", str)
+			_ = fmt.Errorf("Type %s not matched \n", str)
 		}
 	}
 	//fmt.Printf("crb=%v rb=%v crole=%v role=%v  \n", crb, rb, crole, role)
 }
 
 func calcSA() error {
-	crbs, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-	for _, c := range crbs.Items {
-		for _, sub := range c.Subjects {
-			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
+	if crb || crole {
+		crbs, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+		for _, c := range crbs.Items {
+			for _, sub := range c.Subjects {
+				if !isOurSA(sub) {
+					continue
+				}
 				clusterRoleBindings = append(clusterRoleBindings, c)
-				collect(c.RoleRef, "")
+				err = collect(c.RoleRef, "")
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	rbs, err := clientset.RbacV1().RoleBindings("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-	for _, c := range rbs.Items {
-		for _, sub := range c.Subjects {
-			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
+	if crole || rb || role {
+		rbs, err := clientset.RbacV1().RoleBindings("").List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+		for _, c := range rbs.Items {
+			for _, sub := range c.Subjects {
+				if !isOurSA(sub) {
+					continue
+				}
 				roleBindings = append(roleBindings, c)
-				collect(c.RoleRef, c.Namespace)
+				err = collect(c.RoleRef, c.Namespace)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -117,23 +129,35 @@ func collect(ref rbacv1.RoleRef, ns string) error {
 	return nil
 }
 
+func isOurSA(sub rbacv1.Subject) bool {
+	return sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace
+}
+
 func printSA() {
 	fmt.Printf("::::::::::: Printing the resources connected with %s/%s ServiceAccount ::::::::::: \n", namespace, name)
-	fmt.Printf("ClusterRoleBindings ==> ")
-	for _, c := range clusterRoleBindings {
-		pri(&c, fmt.Sprintf("ClusterRoleBinding %s", c.GetName()))
+	if crb {
+		fmt.Printf("ClusterRoleBindings ==> ")
+		for _, c := range clusterRoleBindings {
+			pri(&c, fmt.Sprintf("ClusterRoleBinding %s", c.GetName()))
+		}
 	}
-	fmt.Printf("\nClusterRoles ==> ")
-	for _, c := range clusterRoles {
-		pri(&c, fmt.Sprintf("ClusterRole %s", c.GetName()))
+	if crole {
+		fmt.Printf("\nClusterRoles ==> ")
+		for _, c := range clusterRoles {
+			pri(&c, fmt.Sprintf("ClusterRole %s", c.GetName()))
+		}
 	}
-	fmt.Printf("\nRoleBindings ==> ")
-	for _, c := range roleBindings {
-		pri(&c, fmt.Sprintf("RoleBinding %s/%s", c.GetNamespace(), c.GetName()))
+	if rb {
+		fmt.Printf("\nRoleBindings ==> ")
+		for _, c := range roleBindings {
+			pri(&c, fmt.Sprintf("RoleBinding %s/%s", c.GetNamespace(), c.GetName()))
+		}
 	}
-	fmt.Printf("\nRoles ==> ")
-	for _, c := range roles {
-		pri(&c, fmt.Sprintf("Role %s/%s", c.GetNamespace(), c.GetName()))
+	if role {
+		fmt.Printf("\nRoles ==> ")
+		for _, c := range roles {
+			pri(&c, fmt.Sprintf("Role %s/%s", c.GetNamespace(), c.GetName()))
+		}
 	}
 }
 
