@@ -1,4 +1,4 @@
-package main
+package cmds
 
 import (
 	"context"
@@ -9,11 +9,6 @@ import (
 	"github.com/spf13/cobra"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
-var (
-	name, namespace string
-	oyaml           bool
 )
 
 func ServiceAccountCMD() *cobra.Command {
@@ -41,7 +36,7 @@ func ServiceAccountCMD() *cobra.Command {
 
 func calcSA() error {
 	if parser.Crb || parser.CRole {
-		crbs, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+		crbs, err := c.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return err
 		}
@@ -51,7 +46,7 @@ func calcSA() error {
 					continue
 				}
 				store.ClusterRoleBindings = append(store.ClusterRoleBindings, c)
-				err = collect(c.RoleRef, "")
+				err = collectForSA(c.RoleRef, "")
 				if err != nil {
 					return err
 				}
@@ -60,7 +55,7 @@ func calcSA() error {
 	}
 
 	if parser.CRole || parser.Rb || parser.Role {
-		rbs, err := clientset.RbacV1().RoleBindings("").List(context.TODO(), metav1.ListOptions{})
+		rbs, err := c.RbacV1().RoleBindings("").List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return err
 		}
@@ -70,7 +65,7 @@ func calcSA() error {
 					continue
 				}
 				store.RoleBindings = append(store.RoleBindings, c)
-				err = collect(c.RoleRef, c.Namespace)
+				err = collectForSA(c.RoleRef, c.Namespace)
 				if err != nil {
 					return err
 				}
@@ -80,15 +75,15 @@ func calcSA() error {
 	return nil
 }
 
-func collect(ref rbacv1.RoleRef, ns string) error {
+func collectForSA(ref rbacv1.RoleRef, ns string) error {
 	if ref.Kind == "ClusterRole" {
-		x, err := clientset.RbacV1().ClusterRoles().Get(context.TODO(), ref.Name, metav1.GetOptions{})
+		x, err := c.RbacV1().ClusterRoles().Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
 		store.ClusterRoles = append(store.ClusterRoles, *x)
 	} else if ref.Kind == "Role" {
-		x, err := clientset.RbacV1().Roles(ns).Get(context.TODO(), ref.Name, metav1.GetOptions{})
+		x, err := c.RbacV1().Roles(ns).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
