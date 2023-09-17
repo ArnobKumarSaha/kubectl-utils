@@ -47,4 +47,3 @@ func calcRole() error {
 	}
 	return nil
 }
-

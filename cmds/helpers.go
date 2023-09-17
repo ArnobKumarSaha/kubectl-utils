@@ -8,7 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func addCommonFlags(cmd *cobra.Command)  {
+func addCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&name, "name", name, "")
 	cmd.Flags().StringVarP(&namespace, "namespace", "n", namespace, "")
 

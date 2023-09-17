@@ -64,4 +64,3 @@ func calcClusterRole() error {
 	}
 	return nil
 }
-

@@ -86,5 +86,3 @@ func collectForSA(ref rbacv1.RoleRef, ns string) error {
 	}
 	return nil
 }
-
-

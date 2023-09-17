@@ -8,7 +8,7 @@ import (
 var (
 	TypeStr     string
 	Role, CRole bool
-	Rb, Crb, Sa     bool
+	Rb, Crb, Sa bool
 )
 
 func Parse() {

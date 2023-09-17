@@ -10,5 +10,5 @@ var (
 	ClusterRoles        []rbacv1.ClusterRole
 	RoleBindings        []rbacv1.RoleBinding
 	Roles               []rbacv1.Role
-	ServiceAccounts               []corev1.ServiceAccount
+	ServiceAccounts     []corev1.ServiceAccount
 )

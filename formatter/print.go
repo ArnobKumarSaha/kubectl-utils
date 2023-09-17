@@ -13,19 +13,19 @@ func Print(title string, yaml bool) {
 	if parser.Crb {
 		fmt.Printf("ClusterRoleBindings ==> ")
 		for _, c := range store.ClusterRoleBindings {
-			pri(&c, fmt.Sprintf("ClusterRoleBinding %s", c.GetName()), yaml)
+			pri(&c, fmt.Sprintf("CRB %s", c.GetName()), yaml)
 		}
 	}
 	if parser.CRole {
 		fmt.Printf("\nClusterRoles ==> ")
 		for _, c := range store.ClusterRoles {
-			pri(&c, fmt.Sprintf("ClusterRole %s", c.GetName()), yaml)
+			pri(&c, fmt.Sprintf("CRole %s", c.GetName()), yaml)
 		}
 	}
 	if parser.Rb {
 		fmt.Printf("\nRoleBindings ==> ")
 		for _, c := range store.RoleBindings {
-			pri(&c, fmt.Sprintf("RoleBinding %s/%s", c.GetNamespace(), c.GetName()), yaml)
+			pri(&c, fmt.Sprintf("RB %s/%s", c.GetNamespace(), c.GetName()), yaml)
 		}
 	}
 	if parser.Role {
@@ -37,7 +37,7 @@ func Print(title string, yaml bool) {
 	if parser.Sa {
 		fmt.Printf("\nServiceAccounts ==> ")
 		for _, c := range store.ServiceAccounts {
-			pri(&c, fmt.Sprintf("ServiceAccount %s/%s", c.GetNamespace(), c.GetName()), yaml)
+			pri(&c, fmt.Sprintf("SA %s/%s", c.GetNamespace(), c.GetName()), yaml)
 		}
 	}
 }
@@ -46,6 +46,6 @@ func pri(c metav1.Object, header string, yaml bool) {
 	if yaml {
 		oneliners.PrettyJson(c, header)
 	} else {
-		fmt.Printf("%s, ", c.GetName())
+		fmt.Printf("%s, ", header)
 	}
 }
