@@ -13,8 +13,8 @@ import (
 
 func ServiceAccountCMD() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "sa",
-		Short: "list",
+		Use:     "sa",
+		Example: `rbac sa -n bb-r5z2w --name kube-binder --typ "crb,role,rb" --oyaml`,
 		Run: func(cmd *cobra.Command, args []string) {
 			parser.Parse()
 			_ = calcSA()

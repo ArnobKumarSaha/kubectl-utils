@@ -34,6 +34,12 @@ func Print(title string, yaml bool) {
 			pri(&c, fmt.Sprintf("Role %s/%s", c.GetNamespace(), c.GetName()), yaml)
 		}
 	}
+	if parser.Sa {
+		fmt.Printf("\nServiceAccounts ==> ")
+		for _, c := range store.ServiceAccounts {
+			pri(&c, fmt.Sprintf("ServiceAccount %s/%s", c.GetNamespace(), c.GetName()), yaml)
+		}
+	}
 }
 
 func pri(c metav1.Object, header string, yaml bool) {

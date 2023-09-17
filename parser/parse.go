@@ -8,7 +8,7 @@ import (
 var (
 	TypeStr     string
 	Role, CRole bool
-	Rb, Crb     bool
+	Rb, Crb, Sa     bool
 )
 
 func Parse() {
@@ -29,6 +29,9 @@ func Parse() {
 			continue
 		case "crole":
 			CRole = true
+			continue
+		case "sa":
+			Sa = true
 			continue
 		default:
 			_ = fmt.Errorf("Type %s not matched \n", str)
