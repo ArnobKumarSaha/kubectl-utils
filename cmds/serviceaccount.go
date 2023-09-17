@@ -24,13 +24,8 @@ func ServiceAccountCMD() *cobra.Command {
 		DisableAutoGenTag:     true,
 	}
 
-	cmd.Flags().StringVar(&name, "name", name, "name of sa")
-	cmd.Flags().StringVarP(&namespace, "namespace", "n", namespace, "namespace of sa")
-	cmd.Flags().StringVar(&parser.TypeStr, "typ", "crb,rb,crole,role", "typ of relationships with sa you want")
-
-	cmd.Flags().BoolVarP(&oyaml, "oyaml", "y", oyaml, "shows yaml too")
-	cmd.Flags().Lookup("oyaml").NoOptDefVal = "true"
-	_ = cmd.MarkFlagRequired("name")
+	addCommonFlags(cmd)
+	cmd.Flags().StringVar(&parser.TypeStr, "typ", "crb,rb,crole,role", "typ of relationships with sa, you want")
 	return cmd
 }
 
@@ -92,6 +87,4 @@ func collectForSA(ref rbacv1.RoleRef, ns string) error {
 	return nil
 }
 
-func isOurSA(sub rbacv1.Subject) bool {
-	return sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace
-}
+

@@ -25,6 +25,7 @@ func NewRootCMD() *cobra.Command {
 func Execute(rootCmd *cobra.Command) {
 	rootCmd.AddCommand(ServiceAccountCMD())
 	rootCmd.AddCommand(RoleCMD())
+	rootCmd.AddCommand(ClusterROleCMD())
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -7,7 +7,6 @@ import (
 	"github.com/Arnobkumarsaha/rbac/parser"
 	"github.com/Arnobkumarsaha/rbac/store"
 	"github.com/spf13/cobra"
-	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -24,13 +23,8 @@ func RoleCMD() *cobra.Command {
 		DisableAutoGenTag:     true,
 	}
 
-	cmd.Flags().StringVar(&name, "name", name, "name of role")
-	cmd.Flags().StringVarP(&namespace, "namespace", "n", namespace, "namespace of role")
-	cmd.Flags().StringVar(&parser.TypeStr, "typ", "crb,rb,crole,role", "typ of relationships with role, you want")
-
-	cmd.Flags().BoolVarP(&oyaml, "oyaml", "y", oyaml, "shows yaml too")
-	cmd.Flags().Lookup("oyaml").NoOptDefVal = "true"
-	_ = cmd.MarkFlagRequired("name")
+	addCommonFlags(cmd)
+	cmd.Flags().StringVar(&parser.TypeStr, "typ", "rb,sa", "typ of relationships with role, you want")
 	return cmd
 }
 
@@ -45,7 +39,7 @@ func calcRole() error {
 				continue
 			}
 			store.RoleBindings = append(store.RoleBindings, c)
-			err = collectForRole(c.Subjects)
+			err = collectSubjects(c.Subjects)
 			if err != nil {
 				return err
 			}
@@ -54,17 +48,3 @@ func calcRole() error {
 	return nil
 }
 
-func collectForRole(subjects []rbacv1.Subject) error {
-	for _, s := range subjects {
-		sub, err := c.CoreV1().ServiceAccounts(s.Namespace).Get(context.TODO(), s.Name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-		store.ServiceAccounts = append(store.ServiceAccounts, *sub)
-	}
-	return nil
-}
-
-func isOurRole(r rbacv1.RoleRef) bool {
-	return r.Kind == "Role" && r.Name == name
-}
