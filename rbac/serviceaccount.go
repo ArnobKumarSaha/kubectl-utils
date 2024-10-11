@@ -1,11 +1,12 @@
-package cmds
+package rbac
 
 import (
 	"context"
 	"fmt"
-	"github.com/Arnobkumarsaha/kubectl-utils/formatter"
-	"github.com/Arnobkumarsaha/kubectl-utils/parser"
-	"github.com/Arnobkumarsaha/kubectl-utils/store"
+	"github.com/Arnobkumarsaha/kubectl-utils/client"
+	"github.com/Arnobkumarsaha/kubectl-utils/rbac/formatter"
+	"github.com/Arnobkumarsaha/kubectl-utils/rbac/parser"
+	"github.com/Arnobkumarsaha/kubectl-utils/rbac/store"
 	"github.com/spf13/cobra"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,7 +33,7 @@ func ServiceAccountCMD() *cobra.Command {
 
 func calcSA() error {
 	if parser.Crb || parser.CRole {
-		crbs, err := c.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+		crbs, err := client.Client.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return err
 		}
@@ -51,7 +52,7 @@ func calcSA() error {
 	}
 
 	if parser.CRole || parser.Rb || parser.Role {
-		rbs, err := c.RbacV1().RoleBindings("").List(context.TODO(), metav1.ListOptions{})
+		rbs, err := client.Client.RbacV1().RoleBindings("").List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return err
 		}
@@ -73,13 +74,13 @@ func calcSA() error {
 
 func collectForSA(ref rbacv1.RoleRef, ns string) error {
 	if ref.Kind == "ClusterRole" {
-		x, err := c.RbacV1().ClusterRoles().Get(context.TODO(), ref.Name, metav1.GetOptions{})
+		x, err := client.Client.RbacV1().ClusterRoles().Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
 		store.ClusterRoles = append(store.ClusterRoles, *x)
 	} else if ref.Kind == "Role" {
-		x, err := c.RbacV1().Roles(ns).Get(context.TODO(), ref.Name, metav1.GetOptions{})
+		x, err := client.Client.RbacV1().Roles(ns).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}

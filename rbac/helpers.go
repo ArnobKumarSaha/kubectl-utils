@@ -1,8 +1,9 @@
-package cmds
+package rbac
 
 import (
 	"context"
-	"github.com/Arnobkumarsaha/kubectl-utils/store"
+	"github.com/Arnobkumarsaha/kubectl-utils/client"
+	"github.com/Arnobkumarsaha/kubectl-utils/rbac/store"
 	"github.com/spf13/cobra"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,7 +20,7 @@ func addCommonFlags(cmd *cobra.Command) {
 
 func collectSubjects(subjects []rbacv1.Subject) error {
 	for _, s := range subjects {
-		sub, err := c.CoreV1().ServiceAccounts(s.Namespace).Get(context.TODO(), s.Name, metav1.GetOptions{})
+		sub, err := client.Client.CoreV1().ServiceAccounts(s.Namespace).Get(context.TODO(), s.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
