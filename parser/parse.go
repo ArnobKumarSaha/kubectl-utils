@@ -17,20 +17,20 @@ func Parse() {
 	}
 	strs := strings.Split(TypeStr, ",")
 	for _, str := range strs {
-		switch str {
-		case "crb":
+		switch strings.ToLower(str) {
+		case "crb", "croleb", "crolebinding", "clusterrolebinding":
 			Crb = true
 			continue
-		case "rb":
+		case "rb", "rbinding", "rolebinding":
 			Rb = true
 			continue
 		case "role":
 			Role = true
 			continue
-		case "crole":
+		case "crole", "clusterrole":
 			CRole = true
 			continue
-		case "sa":
+		case "sa", "serviceaccount":
 			Sa = true
 			continue
 		default:

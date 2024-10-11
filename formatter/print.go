@@ -2,8 +2,8 @@ package formatter
 
 import (
 	"fmt"
-	"github.com/Arnobkumarsaha/rbac/parser"
-	"github.com/Arnobkumarsaha/rbac/store"
+	"github.com/Arnobkumarsaha/kubectl-utils/parser"
+	"github.com/Arnobkumarsaha/kubectl-utils/store"
 	"gomodules.xyz/oneliners"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

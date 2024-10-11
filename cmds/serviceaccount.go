@@ -3,9 +3,9 @@ package cmds
 import (
 	"context"
 	"fmt"
-	"github.com/Arnobkumarsaha/rbac/formatter"
-	"github.com/Arnobkumarsaha/rbac/parser"
-	"github.com/Arnobkumarsaha/rbac/store"
+	"github.com/Arnobkumarsaha/kubectl-utils/formatter"
+	"github.com/Arnobkumarsaha/kubectl-utils/parser"
+	"github.com/Arnobkumarsaha/kubectl-utils/store"
 	"github.com/spf13/cobra"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,6 +14,7 @@ import (
 func ServiceAccountCMD() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "sa",
+		Aliases: []string{"serviceaccount"},
 		Example: `rbac sa -n bb-r5z2w --name kube-binder --typ "crb,role,rb" --oyaml`,
 		Run: func(cmd *cobra.Command, args []string) {
 			parser.Parse()

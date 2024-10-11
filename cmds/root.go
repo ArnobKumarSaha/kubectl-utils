@@ -17,16 +17,23 @@ var (
 
 func NewRootCMD() *cobra.Command {
 	return &cobra.Command{
+		Use: "kubectl-utils",
+		Run: func(cmd *cobra.Command, args []string) {},
+	}
+}
+
+func NewRbacCMD() *cobra.Command {
+	return &cobra.Command{
 		Use: "rbac",
 		Run: func(cmd *cobra.Command, args []string) {},
 	}
 }
 
-func Execute(rootCmd *cobra.Command) {
-	rootCmd.AddCommand(ServiceAccountCMD())
-	rootCmd.AddCommand(RoleCMD())
-	rootCmd.AddCommand(ClusterROleCMD())
-	if err := rootCmd.Execute(); err != nil {
+func Execute(cmd *cobra.Command) {
+	cmd.AddCommand(ServiceAccountCMD())
+	cmd.AddCommand(RoleCMD())
+	cmd.AddCommand(ClusterROleCMD())
+	if err := cmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

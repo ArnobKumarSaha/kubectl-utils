@@ -1,4 +1,4 @@
-module github.com/Arnobkumarsaha/rbac
+module github.com/Arnobkumarsaha/kubectl-utils
 
 go 1.20
 

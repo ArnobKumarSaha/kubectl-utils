@@ -2,7 +2,7 @@ package cmds
 
 import (
 	"context"
-	"github.com/Arnobkumarsaha/rbac/store"
+	"github.com/Arnobkumarsaha/kubectl-utils/store"
 	"github.com/spf13/cobra"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

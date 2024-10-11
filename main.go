@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/Arnobkumarsaha/rbac/cmds"
+	"github.com/Arnobkumarsaha/kubectl-utils/cmds"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"os"
@@ -26,5 +26,7 @@ func init() {
 
 func main() {
 	rootCmd := cmds.NewRootCMD()
-	cmds.Execute(rootCmd)
+	rbacCmd := cmds.NewRbacCMD()
+	rootCmd.AddCommand(rbacCmd)
+	cmds.Execute(rbacCmd)
 }
