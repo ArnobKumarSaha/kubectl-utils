@@ -15,7 +15,7 @@ func NewCMD() *cobra.Command {
 		Use: "rbac",
 		Run: func(cmd *cobra.Command, args []string) {},
 	}
-
+	addCommonFlags(cmd)
 	cmd.AddCommand(ServiceAccountCMD())
 	cmd.AddCommand(RoleCMD())
 	cmd.AddCommand(ClusterROleCMD())

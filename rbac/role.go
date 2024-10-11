@@ -24,7 +24,6 @@ func RoleCMD() *cobra.Command {
 		DisableAutoGenTag:     true,
 	}
 
-	addCommonFlags(cmd)
 	cmd.Flags().StringVar(&parser.TypeStr, "typ", "rb,sa", "typ of relationships with role, you want")
 	return cmd
 }

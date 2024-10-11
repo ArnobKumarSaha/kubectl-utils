@@ -25,7 +25,6 @@ func ClusterROleCMD() *cobra.Command {
 		DisableAutoGenTag:     true,
 	}
 
-	addCommonFlags(cmd)
 	cmd.Flags().StringVar(&parser.TypeStr, "typ", "crb,rb,sa", "typ of relationships with crole, you want")
 	return cmd
 }

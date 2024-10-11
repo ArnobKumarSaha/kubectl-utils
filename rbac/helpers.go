@@ -10,11 +10,11 @@ import (
 )
 
 func addCommonFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&name, "name", name, "")
-	cmd.Flags().StringVarP(&namespace, "namespace", "n", namespace, "")
+	cmd.PersistentFlags().StringVar(&name, "name", name, "")
+	cmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", namespace, "")
 
-	cmd.Flags().BoolVarP(&oyaml, "oyaml", "y", oyaml, "shows yaml too")
-	cmd.Flags().Lookup("oyaml").NoOptDefVal = "true"
+	cmd.PersistentFlags().BoolVarP(&oyaml, "oyaml", "y", oyaml, "shows yaml too")
+	cmd.PersistentFlags().Lookup("oyaml").NoOptDefVal = "true"
 	_ = cmd.MarkFlagRequired("name")
 }
 

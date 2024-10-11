@@ -26,7 +26,6 @@ func ServiceAccountCMD() *cobra.Command {
 		DisableAutoGenTag:     true,
 	}
 
-	addCommonFlags(cmd)
 	cmd.Flags().StringVar(&parser.TypeStr, "typ", "crb,rb,crole,role", "typ of relationships with sa, you want")
 	return cmd
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/Arnobkumarsaha/kubectl-utils/client"
+	"github.com/Arnobkumarsaha/kubectl-utils/image"
 	"github.com/Arnobkumarsaha/kubectl-utils/rbac"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -40,5 +41,6 @@ func NewRootCMD() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {},
 	}
 	cmd.AddCommand(rbac.NewCMD())
+	cmd.AddCommand(image.NewCMD())
 	return cmd
 }
