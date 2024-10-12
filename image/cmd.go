@@ -1,33 +1,47 @@
 package image
 
 import (
-	"context"
-	"github.com/Arnobkumarsaha/kubectl-utils/client"
+	"fmt"
 	"github.com/spf13/cobra"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 )
 
 var (
 	name      string
 	namespace string
-	oyaml     bool
+	resource  string
+	hash      bool
 )
 
 func NewCMD() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "image",
+		Run: func(cmd *cobra.Command, args []string) {},
+	}
+	addCommonFlags(cmd)
+	cmd.AddCommand(NewListCmd())
+	return cmd
+}
+
+func addCommonFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringVar(&name, "name", name, "")
+	cmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", namespace, "")
+	cmd.PersistentFlags().StringVarP(&resource, "resource", "r", resource, "")
+
+	cmd.PersistentFlags().BoolVarP(&hash, "hash", "", hash, "shows image hash too")
+	cmd.PersistentFlags().Lookup("hash").NoOptDefVal = "true"
+	_ = cmd.MarkFlagRequired("resource")
+}
+
+func NewListCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use: "list",
 		Run: func(cmd *cobra.Command, args []string) {
-			klog.Infof("image name: %s, namespace: %s", name, namespace)
-			pods, err := client.Client.CoreV1().Pods(corev1.NamespaceDefault).List(context.TODO(), metav1.ListOptions{})
+			err := list()
 			if err != nil {
-				panic(err)
-			}
-			for _, item := range pods.Items {
-				klog.Infof(item.Name)
+				_ = fmt.Errorf("error on listing : %v", err)
 			}
 		},
 	}
+	cmd.AddCommand()
 	return cmd
 }

@@ -24,7 +24,7 @@ func init() {
 	if err != nil {
 		panic(err.Error())
 	}
-	client.SetKubernetesClient(config)
+	client.SetClients(config)
 }
 
 func main() {
