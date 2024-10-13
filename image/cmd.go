@@ -36,7 +36,7 @@ func NewListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "list",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := list()
+			err := listAll()
 			if err != nil {
 				_ = fmt.Errorf("error on listing : %v", err)
 			}

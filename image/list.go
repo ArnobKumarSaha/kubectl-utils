@@ -11,7 +11,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
+	"os"
 	"strings"
+	"text/tabwriter"
 )
 
 type info struct {
@@ -24,19 +26,36 @@ var (
 	targetGVR schema.GroupVersionResource
 )
 
-func list() error {
+func listAll() error {
+	arr := strings.Split(resource, ",")
+	for _, r := range arr {
+		err := list(r)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func list(curRes string) error {
 	podGvr := schema.GroupVersionResource{
 		Group:    "",
 		Version:  "v1",
 		Resource: "pods",
 	}
 	targetGVR = podGvr
-	switch resource {
-	case "deployment", "deploy", "dep":
-		targetGVR.Group = "apps"
+	targetGVR.Group = "apps"
+	switch curRes {
+	case "deployments", "deployment", "deploy", "dep":
 		targetGVR.Resource = "deployments"
+	case "replicasets", "replicaset", "rs":
+		targetGVR.Resource = "replicasets"
+	case "statefulsets", "statefulset", "sts":
+		targetGVR.Resource = "statefulsets"
+	case "daemonsets", "daemonset", "ds":
+		targetGVR.Resource = "daemonsets"
 	default:
-		klog.Errorf("unknown resource %s", resource)
+		klog.Errorf("unknown resource %s", curRes)
 	}
 	var (
 		pods *corev1.PodList
@@ -45,14 +64,11 @@ func list() error {
 	podMap = make(map[string]map[string][]info)
 	ownerMap = make(map[string][]string)
 	pods, err = client.Client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-	// pods , err = client.DynamicClient.Resource(podGvr).Namespace(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	klog.Infoln(len(pods.Items))
-	for i, pod := range pods.Items {
-		klog.Infof("pppp %v %s \n", i, pod.Name)
+	for _, pod := range pods.Items {
 		podNames, exists := podMap[pod.Namespace]
 		if !exists {
 			podNames = make(map[string][]info)
@@ -73,21 +89,19 @@ func list() error {
 		podMap[pod.Namespace] = podNames
 
 		res, err := findResource(pod.OwnerReferences, pod.Namespace)
+		//klog.Infof("%v/%v %v %v \n", pod.Namespace, pod.Name, res == nil, err)
 		if err != nil {
 			return err
 		}
 		if res == nil {
 			continue
 		}
-		klog.Infof("%v %v \n", targetGVR, res.GetName())
 		s := fmt.Sprintf("%s/%s", res.GetNamespace(), res.GetName())
 		if _, exists = ownerMap[s]; !exists {
 			ownerMap[s] = make([]string, 0)
 		}
 		ownerMap[s] = append(ownerMap[s], pod.GetName())
-		klog.Infof("%v \n", len(ownerMap[s]))
 	}
-	klog.Infof("output")
 	output()
 	return nil
 }
@@ -110,7 +124,7 @@ func findResource(ownerRefs []metav1.OwnerReference, ns string) (*unstructured.U
 
 		target, err := client.DynamicClient.Resource(gvr).Namespace(ns).Get(context.TODO(), ownerRef.Name, metav1.GetOptions{})
 		if err != nil {
-			return nil, fmt.Errorf("failed to get Deployment: %v", err)
+			return nil, fmt.Errorf("failed to get target: %v", err)
 		}
 		return target, nil
 	}
@@ -163,12 +177,15 @@ func getOwnerRefs(gvr schema.GroupVersionResource, scope meta.RESTScope, ns, nam
 }
 
 func output() {
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.Debug)
+	fmt.Fprintf(w, "%s\tInfo\t\n", targetGVR.Resource)
+	// Iterate over the ownerMap
 	for owner, podNames := range ownerMap {
 		refs := strings.Split(owner, "/")
-		klog.Infof("%v -> \n", owner)
-		for _, podName := range podNames {
-			infos := podMap[refs[0]][podName]
-			klog.Infof("%v %v \n", podName, infos)
+		if len(podNames) > 0 {
+			infos := podMap[refs[0]][podNames[0]]
+			fmt.Fprintf(w, "%v\t%v\t\n", owner, infos[0])
 		}
 	}
+	w.Flush()
 }
