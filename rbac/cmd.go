@@ -12,8 +12,9 @@ var (
 
 func NewCMD() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "rbac",
-		Run: func(cmd *cobra.Command, args []string) {},
+		Use:     "rbac",
+		Example: ` kubectl utils rbac role --name kube-proxy -n kube-system`,
+		Run:     func(cmd *cobra.Command, args []string) {},
 	}
 	addCommonFlags(cmd)
 	cmd.AddCommand(ServiceAccountCMD())

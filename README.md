@@ -14,3 +14,8 @@ To get the connections easily among serviceAccount(sa), role, roleBinding(rb), c
 `kubectl utils rbac sa -n bb-r5z2w --name kube-binder --typ "crb,role,rb"` <br>
 `kubectl utils rbac crole --name kube-binder --typ "crb,rb,sa" --oyaml` <br>
 `kubectl utils rbac role -n kube-system --name kube-proxy --typ "rb,sa" --oyaml`
+
+### image
+To get the image list (image, imageId, containerName), used in various resources in a ns.
+
+`kubectl utils image list -r ds,dep -n kube-system`

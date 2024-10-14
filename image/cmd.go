@@ -14,8 +14,9 @@ var (
 
 func NewCMD() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "image",
-		Run: func(cmd *cobra.Command, args []string) {},
+		Use:     "image",
+		Example: `kubectl utils image list -r ds,dep -n kube-system`,
+		Run:     func(cmd *cobra.Command, args []string) {},
 	}
 	addCommonFlags(cmd)
 	cmd.AddCommand(NewListCmd())
@@ -24,6 +25,9 @@ func NewCMD() *cobra.Command {
 
 func addCommonFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVar(&name, "name", name, "")
+	// TODO: Need to take the `name` into account.
+	// Possibly, If name is given , show the containerName & imageId.
+	// Otherwise, show the images only.    NEAT & CLEAN
 	cmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", namespace, "")
 	cmd.PersistentFlags().StringVarP(&resource, "resource", "r", resource, "")
 
